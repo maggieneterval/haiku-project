@@ -2,7 +2,7 @@ var fs = require('fs');
 
 // returns contents of file as a string
 
-function readCmudictFile(file){
+function fileToString(file){
   return fs.readFileSync(file).toString();
 }
 
@@ -77,9 +77,74 @@ function createHaiku(structure, dataObj){
 	return haiku.trim();
 }
 
+// returns an object with each word as key and number of syllables it has as value
+
+function createDict(data){
+	var obj = {};    
+	var lines = data.toString().split("\n");
+	var lineSplit;
+	for (var x = 0; x < lines.length - 1; x++){
+		var thisLine = lines[x].split('  ');
+		var thisWord = thisLine[0];
+		if (thisWord.indexOf('\(') !== -1){
+			var thisIndex = thisWord.indexOf('\(');
+			thisWord = thisWord.slice(0, thisIndex);
+		}
+		var phonArr = thisLine[1].split(" ");
+		var syllCount = 0;
+		for (var i = 0; i < phonArr.length; i++){
+			if (phonArr[i].match(/\d/)){
+				syllCount++;
+			}
+		}
+		obj[thisWord] = syllCount;
+	}
+	return obj; 
+}
+
+function haikuFromCorpus(fileString, dictObj){
+	var textArr = fileString.split(' ');
+	var randomStart = Math.floor(Math.random() * ((textArr.length - 1) + 1));
+
+	var haiku = "";
+	var syllCount = 0;
+	var currentLine = 1;
+	var totalSyll;
+
+	for (var i = randomStart; i < textArr.length; i++){
+
+		var thisWord = textArr[i].toUpperCase();
+		var thisCount = dictObj[thisWord];
+
+		if (currentLine === 1 || currentLine === 3){
+			totalSyll = 5;
+		} else if (currentLine === 2){
+			totalSyll = 7;
+		} else {
+			return haiku.trim();
+		}
+
+		if ((syllCount + thisCount) < totalSyll){
+			haiku += thisWord + " ";
+			syllCount += thisCount;
+		} else if ((syllCount + thisCount) === totalSyll){
+			haiku += thisWord + "\n";
+			currentLine += 1;
+			syllCount = 0;
+		} else if (((syllCount + thisCount) > totalSyll) || (thisCount === undefined)){
+			haiku = "";
+			syllCount = 0;
+			currentLine = 1;
+		}
+	}
+	
+}
+
 module.exports = {
-	readCmudictFile: readCmudictFile,
+	fileToString: fileToString,
 	formatData: formatData,
 	randomStructure: randomStructure,
 	createHaiku: createHaiku,
+	createDict: createDict,
+	haikuFromCorpus: haikuFromCorpus,
 }

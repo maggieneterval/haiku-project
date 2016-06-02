@@ -2,7 +2,7 @@ var haiku = require('./haiku.js');
 
 // sets cmudictFile to equal the contents of the dictionary output as a string
 
-var cmudictFile = haiku.readCmudictFile('./cmudict.txt');
+var cmudictFile = haiku.fileToString('./cmudict.txt');
 
 // passes in the dictionary file and returns an object with keys of number of syllables pointing to arrays of words with that number of syllables
 
@@ -17,3 +17,10 @@ var newStructure = haiku.randomStructure();
 var newHaiku = haiku.createHaiku(newStructure, formattedData);
 
 console.log(newHaiku);
+
+//generate Hume haiku
+
+var humeFile = haiku.fileToString('./hume.txt');
+var dict = haiku.createDict(cmudictFile);
+var humeHaiku = haiku.haikuFromCorpus(humeFile, dict);
+console.log(humeHaiku);
